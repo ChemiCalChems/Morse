@@ -39,7 +39,17 @@ std::map<char, std::vector<MorseEvent>> morseCode = {
 	{'x', {MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dah}},
 	{'y', {MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah}},
 	{'z', {MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih}},
-	{' ', {MorseEvent::wordSpace}}
+	{' ', {MorseEvent::wordSpace}},
+	{'1', {MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah}},
+	{'2', {MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah}},
+	{'3', {MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah}},
+	{'4', {MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dah}},
+	{'5', {MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih}},
+	{'6', {MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih}},
+	{'7', {MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih}},
+	{'8', {MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dih, MorseEvent::symbolSpace, MorseEvent::dih}},
+	{'9', {MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dih}},
+	{'0', {MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah, MorseEvent::symbolSpace, MorseEvent::dah}}
 };
 
 std::vector<MorseEvent> stringToMorseCode(std::string str) {
@@ -82,37 +92,36 @@ int main() {
 	alGenBuffers(1, &buffer);
 	
 	while (true) {
-	std::string input;
-	std::getline(std::cin, input);
-	std::for_each(input.begin(), input.end(), [](char& c){c = std::tolower(c);});
+		std::string input;
+		std::getline(std::cin, input);
+		std::for_each(input.begin(), input.end(), [](char& c){c = std::tolower(c);});
 
-	auto output = stringToMorseCode(input);
+		auto output = stringToMorseCode(input);
 
-	std::vector<short> samples;
-	double freq = 440;
-	double sampleRate = 44100;
-	double wpm = 20;
-	double dotDuration = 1.2/wpm;
+		std::vector<short> samples;
+		double freq = 440;
+		double sampleRate = 44100;
+		double wpm = 20;
+		double dotDuration = 1.2/wpm;
 	
-	for (auto event : output) {
-		double eventDuration;
+		for (auto event : output) {
+			double eventDuration;
 		
-		if (event == MorseEvent::dih || event == MorseEvent::symbolSpace) eventDuration = dotDuration;
-		if (event == MorseEvent::dah || event == MorseEvent::letterSpace) eventDuration = 3*dotDuration;
-		if (event == MorseEvent::wordSpace) eventDuration = 7*dotDuration;
+			if (event == MorseEvent::dih || event == MorseEvent::symbolSpace) eventDuration = dotDuration;
+			if (event == MorseEvent::dah || event == MorseEvent::letterSpace) eventDuration = 3*dotDuration;
+			if (event == MorseEvent::wordSpace) eventDuration = 7*dotDuration;
 		
-		int bufSize = sampleRate * eventDuration;
+			int bufSize = sampleRate * eventDuration;
 		
-		if (event == MorseEvent::dih || event==MorseEvent::dah) for (int i = 0; i<bufSize; i++) samples.push_back(SHRT_MAX*std::sin(double(2)*PI*i*freq/sampleRate));
-		else for (int i = 0; i<bufSize;i++) samples.push_back(0);
-	}
+			if (event == MorseEvent::dih || event==MorseEvent::dah) for (int i = 0; i<bufSize; i++) samples.push_back(SHRT_MAX*std::sin(double(2)*PI*i*freq/sampleRate));
+			else for (int i = 0; i<bufSize;i++) samples.push_back(0);
+		}
 
-	alBufferData(buffer, AL_FORMAT_MONO16, &samples[0], 2*samples.size(), sampleRate);
+		alBufferData(buffer, AL_FORMAT_MONO16, &samples[0], 2*samples.size(), sampleRate);
 
-	ALuint src = 0;
-	alGenSources(1, &src);
-	alSourcei(src, AL_BUFFER, buffer);
-	alSourcePlay(src);
-
+		ALuint src = 0;
+		alGenSources(1, &src);
+		alSourcei(src, AL_BUFFER, buffer);
+		alSourcePlay(src);
 	}
 }
