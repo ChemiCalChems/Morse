@@ -2,7 +2,7 @@ project (Morse)
 
 set(CMAKE_CXX_COMPILER_FLAGS "--std=c++14 -Wall -Werror")
 
-set(SOURCE_FILES src/main.cpp)
+set(SOURCE_FILES morse.cpp)
 
 find_package(OpenAL REQUIRED)
 
