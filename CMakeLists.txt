@@ -2,12 +2,16 @@ project (Morse)
 
 set(CMAKE_CXX_COMPILER_FLAGS "--std=c++14 -Wall -Werror")
 
-set(SOURCE_FILES morse.cpp)
+set(SOURCE_FILES src/morse.hpp src/morse.cpp)
 
 find_package(OpenAL REQUIRED)
 
 include_directories(${OPENAL_INCLUDE_DIR})
 
-add_executable(Morse ${SOURCE_FILES})
+add_library(morse SHARED ${SOURCE_FILES})
 
-target_link_libraries(Morse ${OPENAL_LIBRARY})
+add_executable(test src/test.cpp)
+
+target_link_libraries(test ${OPENAL_LIBRARY})
+
+target_link_libraries(test morse)
