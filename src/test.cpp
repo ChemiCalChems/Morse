@@ -8,11 +8,14 @@
 #include <climits>
 #include <algorithm>
 #include "morse.hpp"
+#include "console.hpp"
 
 int main() {
+
 	Morse::initialize();
 	
 	while (true) {
+		Morse::console();
 		std::string input;
 		std::getline(std::cin, input);
 		std::for_each(input.begin(), input.end(), [](char& c){c = std::tolower(c);});
@@ -21,11 +24,6 @@ int main() {
 		auto buf = Morse::eventsToBuffer(output);
 		
 		std::cout << Morse::eventsToMorseString(output);
-		
-		ALuint src;
-		alGenSources(1, &src);
-		alSourcei(src, AL_BUFFER, *buf);
-		alSourcePlay(src);
 	}
 
 	Morse::terminate();
