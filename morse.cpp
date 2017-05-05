@@ -1,8 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <map>
-#include <AL/alc.h>
-#include <AL/al.h>
+#include "alc.h"
+#include "al.h"
 #include <cmath>
 #include <unistd.h>
 #include <climits>
@@ -87,9 +87,6 @@ void exit_al() {
 
 int main() {
 	init_al();
-
-	ALuint buffer;
-	alGenBuffers(1, &buffer);
 	
 	while (true) {
 		std::string input;
@@ -99,9 +96,9 @@ int main() {
 		auto output = stringToMorseCode(input);
 
 		std::vector<short> samples;
-		double freq = 440;
+		double freq = 600;
 		double sampleRate = 44100;
-		double wpm = 20;
+		double wpm = 15;
 		double dotDuration = 1.2/wpm;
 	
 		for (auto event : output) {
@@ -117,9 +114,12 @@ int main() {
 			else for (int i = 0; i<bufSize;i++) samples.push_back(0);
 		}
 
+		ALuint buffer;
+		alGenBuffers(1, &buffer);
+
 		alBufferData(buffer, AL_FORMAT_MONO16, &samples[0], 2*samples.size(), sampleRate);
 
-		ALuint src = 0;
+		ALuint src;
 		alGenSources(1, &src);
 		alSourcei(src, AL_BUFFER, buffer);
 		alSourcePlay(src);
