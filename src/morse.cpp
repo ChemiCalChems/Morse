@@ -43,10 +43,14 @@ namespace Morse {
 		{'0', {Event::dah, Event::symbolSpace, Event::dah, Event::symbolSpace, Event::dah, Event::symbolSpace, Event::dah, Event::symbolSpace, Event::dah}}
 	};
 	
-	std::vector<Event> stringToEvents(std::string str) {
+	std::vector<Event> textToEvents(std::string str) {
 		std::vector<Event> result;
-		for (char c : str) {
-			result.push_back(Event::letterSpace);
+		for (int i = 0; i<str.size(); i++) {
+			char c = str.at(i);
+			
+   			if(!result.empty()) {
+				if (str.at(i-1) != ' ' && c != ' ') result.push_back(Event::letterSpace);
+			}
 			result.insert(result.end(), morseCode.at(c).begin(), morseCode.at(c).end());
 		}
 
@@ -110,11 +114,11 @@ namespace Morse {
 		ALuint* buffer = new ALuint;
 		alGenBuffers(1, buffer);
 
-		alBufferData(*buffer, AL_FORMAT_MONO16, &samples[0], 2*samples.size(), sampleRate);
+		alBufferData(*buffer, AL_FORMAT_MONO16, &samples[0], sizeof(short)*samples.size(), sampleRate);
  		return buffer;
 	}
 
-	std::string eventsToMorseString (std::vector<Event> events) {
+	std::string eventsToMorse(std::vector<Event> events) {
 		std::string result;
 
 		for (auto event : events) {
@@ -129,33 +133,49 @@ namespace Morse {
 				result += " ";
 				break;
 			case Event::wordSpace:
-				result += " / ";
+				result += "/";
 				break;
 			}
 		}
 
 		return result;
 	}
-}
 
-int main() {
-	Morse::initialize();
+	std::string eventsToText(std::vector<Event> events) {
+		std::string result;
 	
-	while (true) {
-		std::string input;
-		std::getline(std::cin, input);
-		std::for_each(input.begin(), input.end(), [](char& c){c = std::tolower(c);});
-
-		auto output = Morse::stringToEvents(input);
-		auto buf = Morse::eventsToBuffer(output);
+		std::vector<Event> currentLetter;
+		for (auto event : events) {
+			if (event == Event::letterSpace || event == Event::wordSpace) {
+				std::for_each(morseCode.begin(), morseCode.end(), [event, currentLetter, &result](std::pair<char, std::vector<Event>> p) {
+						if (p.second == currentLetter) result += p.first;
+					});
+				if (event == Event::wordSpace) {result += " ";}
+				currentLetter.clear();
+			} else {
+				currentLetter.push_back(event);
+			}
+		}
 		
-		std::cout << Morse::eventsToMorseString(output);
-		
-		ALuint src;
-		alGenSources(1, &src);
-		alSourcei(src, AL_BUFFER, *buf);
-		alSourcePlay(src);
+		std::for_each(morseCode.begin(), morseCode.end(), [currentLetter, &result](std::pair<char, std::vector<Event>> p) {
+				if (p.second == currentLetter) result += p.first;
+			});
+			
+		return result;
 	}
 
-	Morse::terminate();
+	std::vector<Event> morseToEvents(std::string morse) {
+		std::vector<Event> result;
+
+		for (char c : morse) {
+			switch (c) {
+			case '.': if (!result.empty() && (result.back() == Event::dih || result.back() == Event::dah)) result.push_back(Event::symbolSpace); result.push_back(Event::dih); break;
+			case '-': if (!result.empty() && (result.back() == Event::dih || result.back() == Event::dah)) result.push_back(Event::symbolSpace); result.push_back(Event::dah); break;
+			case ' ': result.push_back(Event::letterSpace); break;
+			case '/': result.push_back(Event::wordSpace); break;
+			}
+		}
+
+		return result;
+	}
 }

@@ -14,14 +14,19 @@
 
 namespace Morse {
 	enum class Event {dih, dah, symbolSpace, letterSpace, wordSpace};
-
 	extern std::map<char, std::vector<Event>> morseCode;
 
-	std::vector<Event> stringToEvents(std::string str);
 	void initialize();
 	void terminate();
+
+	std::vector<Event> textToEvents(std::string str);
+	std::vector<Event> morseToEvents(std::string str);
+	
+	std::string eventsToMorse(std::vector<Event>);
+	std::string eventsToText(std::vector<Event>);
+
 	ALuint* eventsToBuffer(std::vector<Event>);
-	std::string eventsToMorseString(std::vector<Event>);
+	std::vector<Event> bufferToEvents(ALuint* buffer);
 }
 
 #endif

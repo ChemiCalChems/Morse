@@ -12,6 +12,5 @@ add_library(morse SHARED ${SOURCE_FILES})
 
 add_executable(test src/test.cpp)
 
-target_link_libraries(test ${OPENAL_LIBRARY})
-
+target_link_libraries(morse ${OPENAL_LIBRARY})
 target_link_libraries(test morse)

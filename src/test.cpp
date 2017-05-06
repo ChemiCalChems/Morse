@@ -11,20 +11,9 @@
 #include "console.hpp"
 
 int main() {
-
 	Morse::initialize();
+
+	Morse::console();
 	
-	while (true) {
-		Morse::console();
-		std::string input;
-		std::getline(std::cin, input);
-		std::for_each(input.begin(), input.end(), [](char& c){c = std::tolower(c);});
-
-		auto output = Morse::stringToEvents(input);
-		auto buf = Morse::eventsToBuffer(output);
-		
-		std::cout << Morse::eventsToMorseString(output);
-	}
-
 	Morse::terminate();
 }
